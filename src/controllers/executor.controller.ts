@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { executeWithQuickJS } from "../services/quickjs.service";
+import { executeWithWorker } from "../services/worker.service";
 
 export const executeFunction = async (req: Request, res: Response) => {
   try {
@@ -10,7 +10,6 @@ export const executeFunction = async (req: Request, res: Response) => {
       functionName,
     } = req.body;
 
-    // Now you have access to authenticated user (added by middleware)
     const userId = req.user?.id;
     const userEmail = req.user?.email;
 
@@ -26,31 +25,30 @@ export const executeFunction = async (req: Request, res: Response) => {
       });
     }
 
-    // Optionally enhance userSettings with user info
+    // Enhanced userSettings with user info
     const enhancedUserSettings = {
       ...userSettings,
       executedBy: userId,
       executedByEmail: userEmail,
     };
 
-    const result = await executeWithQuickJS(
+    const result = await executeWithWorker(
       functionString,
       params,
-      enhancedUserSettings, // or keep original userSettings if you don't want to modify
+      enhancedUserSettings,
       functionName
     );
 
     res.json({
       success: true,
       result,
-      executedBy: userEmail, // Optional: include who executed it
+      executedBy: userEmail,
       executedAt: new Date().toISOString(),
     });
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Execution failed";
 
-    // Log error with user context
     console.error(
       `Function execution error for user ${req.user?.email}:`,
       errorMessage
