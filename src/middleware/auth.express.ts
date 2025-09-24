@@ -1,56 +1,72 @@
-import { Context, Next } from "hono";
-import { getSupabaseClient } from "../lib/supabase";
+import { Request, Response, NextFunction } from "express";
+import { supabase } from "../lib/supabase";
 
-export const authenticateUser = async (c: Context, next: Next): Promise<Response | void> => {
+// Extend Request interface to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email?: string;
+        role?: string;
+      };
+    }
+  }
+}
+
+export const authenticateUserExpress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const authHeader = c.req.header("authorization");
+    const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      return c.json({
+      return res.status(401).json({
         success: false,
         error: "Authorization header missing",
         message: "Please provide a valid access token",
-      }, 401);
+      });
     }
 
     const token = authHeader.replace("Bearer ", "");
 
     if (!token) {
-      return c.json({
+      return res.status(401).json({
         success: false,
         error: "Access token missing",
         message: "Please provide a valid access token",
-      }, 401);
+      });
     }
 
-    const supabase = getSupabaseClient();
     const {
       data: { user },
       error,
     } = await supabase.auth.getUser(token);
 
     if (error || !user) {
-      return c.json({
+      return res.status(401).json({
         success: false,
         error: "Invalid or expired token",
         message: "Please login again",
-      }, 401);
+      });
     }
 
-    // Store user in context
-    c.set('user', {
+    req.user = {
       id: user.id,
       email: user.email,
       role: user.user_metadata?.role || "user",
-    });
+    };
 
-    await next();
+    next();
   } catch (error) {
     console.error("Authentication error:", error);
-    return c.json({
+    return res.status(500).json({
       success: false,
       error: "Authentication failed",
       message: "Internal server error during authentication",
-    }, 500);
+    });
   }
 };
+

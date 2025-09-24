@@ -1,0 +1,28 @@
+name = "bms-ai-backend"
+main = "src/worker.ts"
+compatibility_date = "2024-01-15"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "bms-ai-backend"
+
+[env.staging]
+name = "bms-ai-backend-staging"
+
+# Environment variables
+[vars]
+NODE_ENV = "production"
+
+# Secrets (set via wrangler secret put)
+# These should be set using: wrangler secret put SUPABASE_URL
+# SUPABASE_URL = "your-supabase-url"
+# SUPABASE_ANON_KEY = "your-supabase-anon-key" 
+# SUPABASE_SERVICE_ROLE_KEY = "your-supabase-service-role-key"
+
+# Limits
+[limits]
+cpu_ms = 50000  # 50 seconds CPU time limit
+
+# Build configuration
+[build]
+command = "pnpm run build"

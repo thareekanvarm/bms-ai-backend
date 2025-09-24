@@ -1,28 +1,28 @@
-import { Context } from "hono";
-import { executeWithCloudflareWorker } from "../services/cloudflare-worker.service";
+import { Request, Response } from "express";
+import { executeWithWorker } from "../services/worker.service";
 
-export const executeFunction = async (c: Context): Promise<Response> => {
+export const executeFunctionExpress = async (req: Request, res: Response) => {
   try {
     const {
       functionString,
       params = {},
       userSettings = {},
       functionName,
-    } = await c.req.json();
+    } = req.body;
 
-    const userId = c.get('user')?.id;
-    const userEmail = c.get('user')?.email;
+    const userId = req.user?.id;
+    const userEmail = req.user?.email;
 
     console.log(
       `Function execution requested by user: ${userEmail} (${userId})`
     );
 
     if (!functionString) {
-      return c.json({
+      return res.status(400).json({
         success: false,
         error: "functionString is required",
         executedAt: new Date().toISOString(),
-      }, 400);
+      });
     }
 
     // Enhanced userSettings with user info
@@ -32,14 +32,14 @@ export const executeFunction = async (c: Context): Promise<Response> => {
       executedByEmail: userEmail,
     };
 
-    const result = await executeWithCloudflareWorker(
+    const result = await executeWithWorker(
       functionString,
       params,
       enhancedUserSettings,
       functionName
     );
 
-    return c.json({
+    res.json({
       success: true,
       result,
       executedBy: userEmail,
@@ -50,14 +50,15 @@ export const executeFunction = async (c: Context): Promise<Response> => {
       error instanceof Error ? error.message : "Execution failed";
 
     console.error(
-      `Function execution error for user ${c.get('user')?.email}:`,
+      `Function execution error for user ${req.user?.email}:`,
       errorMessage
     );
 
-    return c.json({
+    res.status(500).json({
       success: false,
       error: errorMessage,
       executedAt: new Date().toISOString(),
-    }, 500);
+    });
   }
 };
+

@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { Context } from "hono";
 
-export const healthCheck = (req: Request, res: Response) => {
-  res.json({
+export const healthCheck = (c: Context): Response => {
+  return c.json({
     success: true,
     message: "Function executor running with QuickJS",
     timestamp: new Date().toISOString(),
