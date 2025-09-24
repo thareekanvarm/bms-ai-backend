@@ -1,14 +1,11 @@
 {
   "name": "bms-ai-backend",
   "version": "1.0.0",
-  "description": "Minimal function execution backend with TypeScript and isolated-vm",
-  "main": "dist/server.js",
+  "description": "Minimal function execution backend with TypeScript and QuickJS for Cloudflare Workers",
+  "main": "src/worker.ts",
   "scripts": {
-    "start": "node -r dotenv/config dist/server.js",
-    "dev": "tsx watch -r dotenv/config src/server.ts",
-    "dev:worker": "wrangler dev",
+    "dev": "wrangler dev",
     "build": "tsc",
-    "build:worker": "tsc",
     "deploy": "wrangler deploy",
     "deploy:staging": "wrangler deploy --env staging",
     "deploy:production": "wrangler deploy --env production",
@@ -16,20 +13,12 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.53.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.1",
-    "express": "^4.18.2",
     "hono": "^4.9.8",
-    "node-fetch": "^3.3.2",
     "quickjs-emscripten": "^0.31.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250924.0",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
     "@types/node": "^20.19.9",
-    "@types/node-fetch": "^2.6.13",
-    "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "wrangler": "^4.39.0"
   }
