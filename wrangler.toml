@@ -19,9 +19,9 @@ NODE_ENV = "production"
 # SUPABASE_ANON_KEY = "your-supabase-anon-key" 
 # SUPABASE_SERVICE_ROLE_KEY = "your-supabase-service-role-key"
 
-# Limits
-[limits]
-cpu_ms = 50000  # 50 seconds CPU time limit
+# Limits (removed for Free plan compatibility)
+# [limits]
+# cpu_ms = 50000  # 50 seconds CPU time limit - requires paid plan
 
 # Build configuration
 [build]
